@@ -13,10 +13,13 @@ SET(VOIPCSources ${VOIPCSources}
   main.cpp
   application.cpp
   mainwindow.cpp
-  utils/singleapplication.cpp
   settings.cpp
   voipc.cpp
   PjCallback.cpp
+  network/server.cpp
+  network/clientthread.cpp
+  network/package.cpp
+  network/serverpackagemanager.cpp
 )
 
 SET(VOIPCUI ${VOIPCUI}
@@ -45,7 +48,8 @@ ENDIF()
 
 SET_TARGET_PROPERTIES(voipc PROPERTIES AUTOMOC TRUE)
 
-TARGET_LINK_LIBRARIES(voipc Qt5::Widgets Qt5::Network)
+TARGET_LINK_LIBRARIES(voipc Qt5::Widgets)
+TARGET_LINK_LIBRARIES(voipc Qt5::Network)
 if(WIN32)
     target_link_libraries(voipc
         pjsua-i686-pc-mingw32
@@ -59,6 +63,7 @@ if(WIN32)
         pjlib-util-i686-pc-mingw32
         pj-i686-pc-mingw32
         portaudio-i686-pc-mingw32
+        pjmedia-i686-pc-mingw32
         gsmcodec-i686-pc-mingw32
         ilbccodec-i686-pc-mingw32
         speex-i686-pc-mingw32
@@ -99,3 +104,6 @@ ELSE()
         uuid
         )
 ENDIF()
+
+target_link_libraries(voipc qjson)
+

@@ -18,6 +18,7 @@ private slots:
     void dialButtonClicked();
     void callClicked();
     void hangupClicked();
+    void muteClicked();
     void voipCStateChanged();
 
 private:

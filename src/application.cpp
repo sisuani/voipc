@@ -54,6 +54,7 @@ void Application::init()
 
 bool Application::initSettings()
 {
+    QSettings::setDefaultFormat(QSettings::IniFormat);
     if(!Settings::instance()->isValid())
         return false;
     return true;

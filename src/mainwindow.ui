@@ -526,7 +526,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="muteButton">
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -597,7 +597,7 @@
   <tabstop>dNumeralButton</tabstop>
   <tabstop>pushButton</tabstop>
   <tabstop>pushButton_2</tabstop>
-  <tabstop>pushButton_3</tabstop>
+  <tabstop>muteButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

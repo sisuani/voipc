@@ -21,7 +21,6 @@ Settings *Settings::instance()
 Settings::Settings(QObject *parent)
     : QObject(parent)
 {
-    QSettings::setDefaultFormat(QSettings::IniFormat);
     readSettings();
 }
 

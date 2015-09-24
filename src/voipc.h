@@ -25,6 +25,8 @@ public:
     bool hangup();
     bool answer();
     const QString &state() const;
+    void setTxLevel(int slot, float level);
+    void setRxLevel(int slot, float level);
 
 signals:
     void stateChanged();

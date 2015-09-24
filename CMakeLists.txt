@@ -13,4 +13,7 @@ SET(VOIPC_VERSION_PATH  0)
 
 SET(VOIPC_VERSION ${VOIPC_VERSION_MAJOR}.${VOIPC_VERSION_MINOR}.${VOIPC_VERSION_PATH})
 
-ADD_SUBDIRECTORY(src)
+include_directories(3party/qjson/include)
+
+add_subdirectory(3party)
+add_subdirectory(src)

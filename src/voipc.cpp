@@ -399,3 +399,13 @@ const QString &VoipC::state() const
 {
     return m_state;
 }
+
+void VoipC::setTxLevel(int slot, float level)
+{
+    pjsua_conf_adjust_tx_level(slot, level);
+}
+
+void VoipC::setRxLevel(int slot, float level)
+{
+    pjsua_conf_adjust_rx_level(slot, level);
+}

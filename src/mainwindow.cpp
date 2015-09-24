@@ -23,11 +23,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->dStarButton, SIGNAL(clicked()), SLOT(dialButtonClicked()));
     connect(ui->dNumeralButton, SIGNAL(clicked()), SLOT(dialButtonClicked()));
 
+    connect(ui->muteButton, SIGNAL(clicked()), SLOT(muteClicked()));
+
     connect(ui->callButton, SIGNAL(clicked()), SLOT(callClicked()));
     connect(ui->hangupButton, SIGNAL(clicked()), SLOT(hangupClicked()));
     connect(&voipc, SIGNAL(stateChanged()), SLOT(voipCStateChanged()));
 
     initialize();
+
+    muteClicked();
 }
 
 MainWindow::~MainWindow()
@@ -69,7 +73,6 @@ void MainWindow::callClicked()
         return;
     }
 
-    qDebug() << voipc.state();
     if (voipc.state() == "INCOMING") {
         voipc.answer();
     } else if(voipc.state() == "DISCONNCTD") {
@@ -90,6 +93,14 @@ void MainWindow::hangupClicked()
 
     // voipc.hangup(numero_de_llamada) -> Imp
     voipc.hangup();
+}
+
+void MainWindow::muteClicked()
+{
+    if (ui->muteButton->isChecked())
+        voipc.setRxLevel(0, 0);
+    else
+        voipc.setRxLevel(0, 2);
 }
 
 void MainWindow::voipCStateChanged()
