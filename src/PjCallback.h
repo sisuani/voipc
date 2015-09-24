@@ -15,6 +15,7 @@ extern "C" {
 }
 
 class PjCallback : public QObject {
+
 Q_OBJECT
 
 public:

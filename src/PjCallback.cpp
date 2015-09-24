@@ -1,7 +1,9 @@
 #include <QList>
 #include <QMutex>
+#include <QDebug>
 
 #include "PjCallback.h"
+
 
 #define THIS_FILE "PjCallback"
 
@@ -216,9 +218,7 @@ void PjCallback::on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pj
     QString state_text = QString::fromLatin1(ci.state_text.ptr,(int)ci.state_text.slen);
     emit setCallState(state_text);
 
-    emit setCallState(state_text);
     activeCalls << call_id;
-    emit setCallButtonText("Atender");
     activeCallsMutex.unlock();
 }
 

@@ -7,13 +7,15 @@ ENDIF()
 set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
 
 SET(VOIPCSources ${VOIPCSources}
-#  utils/singleapplication.cpp
-#  utils/utils.cpp
-#  settings.cpp
   main.cpp
+  application.cpp
   mainwindow.cpp
+  utils/singleapplication.cpp
+  settings.cpp
+  voipc.cpp
   PjCallback.cpp
 )
 
@@ -43,7 +45,7 @@ ENDIF()
 
 SET_TARGET_PROPERTIES(voipc PROPERTIES AUTOMOC TRUE)
 
-TARGET_LINK_LIBRARIES(voipc Qt5::Widgets)
+TARGET_LINK_LIBRARIES(voipc Qt5::Widgets Qt5::Network)
 if(WIN32)
     target_link_libraries(voipc
         pjsua-i686-pc-mingw32

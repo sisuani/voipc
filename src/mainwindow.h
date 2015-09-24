@@ -3,12 +3,11 @@
 
 #include <QMainWindow>
 
-#include "PjCallback.h"
+#include "voipc.h"
 #include "ui_mainwindow.h"
 
 class MainWindow : public QMainWindow
 {
-
 Q_OBJECT
 
 public:
@@ -16,20 +15,18 @@ public:
     ~MainWindow();
 
 private slots:
-    void registerClicked();
+    void dialButtonClicked();
     void callClicked();
-    void setCallButtonText(QString text);
+    void hangupClicked();
+    void voipCStateChanged();
 
 private:
+    void initialize();
+    void setStatus(const QString &status);
+
+    bool m_incommingCall;
+    VoipC voipc;
     Ui::MainWindow *ui;
-
-    void voipcShupdown();
-    void voipcInitialize();
-    void voidcRegister();
-
-    PjCallback *pjCallback;
-    bool registered;
-    char *caor, *creguri, *cdomain, *cusername, *cpassword, *cstun, *coutbound;
 };
 
 #endif // MAINWINDOW_H
