@@ -12,6 +12,7 @@
 #include <QWeakPointer>
 
 #include "settings.h"
+#include "network/server.h"
 
 class MainWindow;
 
@@ -34,7 +35,7 @@ private:
     void initGui();
 
     Settings *settings;
-
+    Server *server;
     MainWindow *mMainWindow;
 };
 

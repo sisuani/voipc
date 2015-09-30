@@ -18,9 +18,10 @@ Q_OBJECT
 
 public:
     Server(quint16 port, QObject* parent = 0);
+    ~Server();
 
 protected:
-    void incomingConnection(int socket);
+    void incomingConnection(qintptr socket);
 };
 
 #endif // SERVER_H

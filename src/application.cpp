@@ -12,7 +12,6 @@
 
 #include "config.h"
 #include "settings.h"
-//#include "modules.h"
 #include "mainwindow.h"
 
 #ifdef Q_OS_WIN
@@ -22,6 +21,8 @@
 Application::Application(int &argc, char **argv)
   : QApplication(argc, argv)
 {
+    server = 0;
+
     setOrganizationName(QLatin1String(VOIPC_ORGANIZATION_NAME));
     setOrganizationDomain(QLatin1String(VOIPC_ORGANIZATION_DOMAIN));
     setApplicationName(QLatin1String(VOIPC_APPLICATION_NAME));
@@ -34,6 +35,8 @@ Application::Application(int &argc, char **argv)
 
 Application::~Application()
 {
+    if (server)
+        delete server;
 }
 
 Application *Application::instance()
@@ -47,9 +50,15 @@ void Application::init()
     if(!initSettings())
         return;
 
+    // server
+    if (Settings::instance()->serverEnable()) {
+        server = new Server(9090, this);
+    }
+
     // gui
     initGui();
     qApp->processEvents();
+
 }
 
 bool Application::initSettings()

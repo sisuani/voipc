@@ -14,6 +14,9 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void execCommand(const int cmd, const QString &arg);
+
 private slots:
     void dialButtonClicked();
     void callClicked();

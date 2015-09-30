@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include <QDebug>
 
+#include "commands.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -126,4 +128,35 @@ void MainWindow::voipCStateChanged()
 void MainWindow::setStatus(const QString &status)
 {
     ui->statusLabel->setText(status);
+}
+
+void MainWindow::execCommand(const int cmd, const QString &arg)
+{
+    if (cmd == Dial) {
+        QString d;
+        if (arg == "*")
+            d = "Star";
+        else if (arg == "#")
+            d = "Number";
+
+        QPushButton *dButton = findChild<QPushButton *>(QString::fromUtf8("d%1Button").arg(d));
+        if (dButton)
+            dButton->clicked();
+    } else if (cmd == Call) {
+        ui->uriComboBox->setCurrentText(arg);
+        callClicked();
+    } else if (cmd == Hangup) {
+        hangupClicked();
+    } else if (cmd == Pickup) {
+        if (voipc.state() == "INCOMING") {
+            callClicked();
+        }
+    } else if (cmd == Mute) {
+        ui->muteButton->setChecked(true);
+        muteClicked();
+    } else if (cmd == Unmute) {
+        ui->muteButton->setChecked(false);
+        muteClicked();
+    }
+
 }

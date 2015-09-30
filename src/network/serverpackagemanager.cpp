@@ -14,11 +14,23 @@
 #include <QJson/Parser>
 
 #include "package.h"
+#include "application.h"
+#include "mainwindow.h"
+#include "commands.h"
 
 #define CMD_OK          "cmd_ok"
-#define RADIO_NOT_VALID "radio_not_valid"
 #define CMD_ERROR       "cmd_error"
 #define PKG_CMD_ERROR   "{ \"status\": \"cmd_error\" }"
+
+#define CMD_DIAL        "dial"
+#define CMD_CALL        "call"
+#define CMD_HANGUP      "hangup"
+#define CMD_PICKUP      "pickup"
+#define CMD_MUTE        "mute"
+#define CMD_UNMUTE      "unmute"
+#define CMD_GET_STATUS  "get_status"
+#define CMD_MUTE_STATUS "get_mute_status"
+
 
 ServerPackageManager::ServerPackageManager(QObject *parent)
     : QObject(parent)
@@ -50,87 +62,36 @@ void ServerPackageManager::processPackage(const QByteArray &json)
 
 QString ServerPackageManager::processJson(const QVariantMap &data)
 {
-    /*
-    if(data.contains("radio")) {
-        QVariantMap radioMap = data["radio"].toMap();
-        const int radioNo = radioMap["radioNo"].toInt();
-        QString action = radioMap["action"].toString();
+    if(!data.contains("action"))
+        return CMD_ERROR;
 
-        if(action.compare("connect") == 0) {
-            if(!RadiosManager::instance()->connect(radioNo)) {
-                return RADIO_NOT_VALID;
-            }
-            return CMD_OK;
-        } else if(action.compare("disconnect") == 0) {
-            if(!RadiosManager::instance()->disconnect(radioNo)) {
-                return RADIO_NOT_VALID;
-            }
-            return CMD_OK;
-        } else if(action.compare("ptt-key") == 0) {
-            if(!RadiosManager::instance()->pttKey(radioNo)) {
-                return RADIO_NOT_VALID;
-            }
-            return CMD_OK;
-        } else if(action.compare("ptt-unkey") == 0) {
-            if(!RadiosManager::instance()->pttUnkey(radioNo)) {
-                return RADIO_NOT_VALID;
-            }
-            return CMD_OK;
-        } else if(action.compare("volume") == 0) {
-            if(radioMap.contains("value")) {
-                const int value = radioMap["value"].toInt();
-                if(value < 0 || value > 100)
-                    return CMD_ERROR;
+    const QString action = data["action"].toString();
 
-                if(!RadiosManager::instance()->setVolume(radioNo, value)) {
-                    return RADIO_NOT_VALID;
-                }
-                return CMD_OK;
-            }
-        } else if(action.compare("mute") == 0) {
-            if(radioMap.contains("value")) {
-                const QString value = radioMap["value"].toString();
-                if(value.compare("speaker") != 0 && value.compare("mic") != 0) {
-                    return CMD_ERROR;
-                }
-
-                if(!RadiosManager::instance()->mute(radioNo, value)) {
-                    return RADIO_NOT_VALID;
-                }
-                return CMD_OK;
-            }
-        } else if(action.compare("unmute") == 0) {
-            if(radioMap.contains("value")) {
-                const QString value = radioMap["value"].toString();
-                if(value.compare("speaker") != 0 && value.compare("mic") != 0) {
-                    return CMD_ERROR;
-                }
-
-                if(!RadiosManager::instance()->unmute(radioNo, value)) {
-                    return RADIO_NOT_VALID;
-                }
-                return CMD_OK;
-            }
+    if (action.compare(CMD_DIAL) == 0) {
+        if (data.contains("digit")) {
+            Application::instance()->mainWindow()->execCommand(Dial, data["digit"].toString());
+            return CMD_OK;
         }
-    } else if(data.contains("radios")) {
-        QVariantMap radiosMap = data["radios"].toMap();
-        QString action = radiosMap["action"].toString();
-        if(action.compare("list") == 0) {
-            QList<Radio *> *radiosList = RadiosManager::instance()->radiosList();
-            QString reply = "{ \"status\": \"cmd_ok\", ";
-            reply += QString("\"count\" : \"%1\", ").arg(radiosList->size());
-            reply += QString("\"radios\" : [");
-            for(int i = 0; i < radiosList->size(); i++) {
-                reply += QString("{ \"radio\" : \"%1\",").arg(i);
-                reply += QString("   \"name\" : \"%1\"").arg(radiosList->at(i)->name());
-                reply += (radiosList->size() == i+1) ? "} " : "}, ";
-            }
-            reply += "]";
-            reply += "}";
-            return reply;
+        return CMD_ERROR;
+    } else if (action.compare(CMD_CALL) == 0) {
+        if (data.contains("dst")) {
+            Application::instance()->mainWindow()->execCommand(Call, data["dst"].toString());
+            return CMD_OK;
         }
+        return CMD_ERROR;
+    } else if (action.compare(CMD_HANGUP) == 0) {
+        Application::instance()->mainWindow()->execCommand(Hangup, "");
+        return CMD_OK;
+    } else if (action.compare(CMD_PICKUP) == 0) {
+        Application::instance()->mainWindow()->execCommand(Pickup, "");
+        return CMD_OK;
+    } else if (action.compare(CMD_MUTE) == 0) {
+        Application::instance()->mainWindow()->execCommand(Mute, "");
+        return CMD_OK;
+    } else if (action.compare(CMD_UNMUTE) == 0) {
+        Application::instance()->mainWindow()->execCommand(Unmute, "");
+        return CMD_OK;
     }
-*/
 
     return CMD_ERROR;
 }

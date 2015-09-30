@@ -31,6 +31,9 @@ public:
     void setSipPassword(const QString &sipPassword);
     const QString &sipPassword() const;
 
+    // server
+    const bool serverEnable() const;
+    const int serverPort() const;
 
 private:
     void readSettings();
@@ -39,6 +42,8 @@ private:
     QString m_sipDomain;
     QString m_sipUserName;
     QString m_sipPassword;
+    bool m_serverEnable;
+    int m_serverPort;
 
     static Settings *m_instance;
 };

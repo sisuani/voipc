@@ -43,7 +43,7 @@ void ClientThread::readySend()
         if(m_tcpSocket->state() != QAbstractSocket::ConnectedState)
             return;
 
-        //m_tcpSocket->write(m_serverPackageManager.first().json() + '\n');
+        m_tcpSocket->write(QString(m_serverPackageManager.first() + '\n').toLatin1());
         if(m_tcpSocket->waitForBytesWritten(3000)) {
             m_serverPackageManager.pop_front();
         } else {

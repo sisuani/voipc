@@ -36,6 +36,11 @@ void Settings::readSettings()
     setSipUserName(qsettings.value("UserName").toString());
     setSipPassword(qsettings.value("Password").toString());
     qsettings.endArray();
+
+    qsettings.beginReadArray("Server");
+    m_serverEnable = qsettings.value("Enable", false).toBool();
+    m_serverPort = qsettings.value("Port", 9090).toInt();
+    qsettings.endArray();
 }
 
 bool Settings::isValid()
@@ -77,4 +82,14 @@ void Settings::setSipPassword(const QString &sipPassword)
 const QString &Settings::sipPassword() const
 {
     return m_sipPassword;
+}
+
+const bool Settings::serverEnable() const
+{
+    return m_serverEnable;
+}
+
+const int Settings::serverPort() const
+{
+    return m_serverPort;
 }

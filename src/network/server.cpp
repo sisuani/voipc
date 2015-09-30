@@ -8,6 +8,8 @@
 
 #include "server.h"
 
+#include <QDebug>
+
 #include "clientthread.h"
 
 Server::Server(quint16 port, QObject* parent)
@@ -16,7 +18,11 @@ Server::Server(quint16 port, QObject* parent)
     listen(QHostAddress::Any, port);
 }
 
-void Server::incomingConnection(int socket)
+Server::~Server()
+{
+}
+
+void Server::incomingConnection(qintptr socket)
 {
     QThread *thread = new QThread();
     ClientThread *clientThread = new ClientThread(socket);
