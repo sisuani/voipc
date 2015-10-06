@@ -373,6 +373,7 @@ bool VoipC::hangup()
 
 bool VoipC::answer()
 {
+    activeCallsMutex.lock();
     if (activeCalls.empty()) {
         activeCallsMutex.unlock();
         return false;

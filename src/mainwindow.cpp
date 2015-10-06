@@ -137,10 +137,12 @@ void MainWindow::voipCStateChanged()
         QString condest;
         if (m_incommingCall) {
             condest = voipc.statusContact();
-            ringSound->stop();
+            if (ringSound && !ringSound->isFinished())
+                ringSound->stop();
         } else {
             condest = ui->uriComboBox->currentText();
-            toneSound->stop();
+            if (toneSound && !toneSound->isFinished())
+                toneSound->stop();
         }
 
         setStatus(trUtf8("Conectado con: %1").arg(condest));
