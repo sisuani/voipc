@@ -169,17 +169,19 @@ void PjCallback::on_call_state(pjsua_call_id call_id, pjsip_event *e)
     PJ_LOG(3,(THIS_FILE, "Call %d state=%.*s", call_id,
                 (int)ci.state_text.slen, ci.state_text.ptr));
 
-    QString state_text = QString::fromLatin1(ci.state_text.ptr,(int)ci.state_text.slen);
-    emit setCallState(state_text);
-
     switch(ci.state) {
         case PJSIP_INV_STATE_DISCONNECTED:
             activeCalls.removeAt(activeCalls.indexOf(call_id));
-            emit setCallButtonText("Llamar");
             break;
         default:
             ;
     }
+
+    const QString state_text = QString::fromLatin1(ci.state_text.ptr,(int)ci.state_text.slen);
+    const QString contact = ci.remote_contact.ptr;
+
+
+    emit setCallState(state_text, contact);
 }
 
 void PjCallback::on_call_state_wrapper(pjsua_call_id call_id, pjsip_event *e)
@@ -215,11 +217,14 @@ void PjCallback::on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pj
     PJ_LOG(3,(THIS_FILE, "Call %d state=%.*s", call_id,
                 (int)ci.state_text.slen, ci.state_text.ptr));
 
-    QString state_text = QString::fromLatin1(ci.state_text.ptr,(int)ci.state_text.slen);
-    emit setCallState(state_text);
+    const QString state_text = QString::fromLatin1(ci.state_text.ptr,(int)ci.state_text.slen);
+    const QString contact = ci.remote_contact.ptr;
+
+    emit setCallState(state_text, contact);
 
     activeCalls << call_id;
     activeCallsMutex.unlock();
+
 }
 
 void PjCallback::on_incoming_call_wrapper(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_rx_data *rdata)

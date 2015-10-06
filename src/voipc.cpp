@@ -108,7 +108,6 @@ static pjsip_module mod_default_handler =
 
 VoipC::VoipC(QObject *parent)
 {
-    m_registered = false;
     pjCallback = new PjCallback();
     m_state = "DISCONNCTD";
 
@@ -116,8 +115,8 @@ VoipC::VoipC(QObject *parent)
    //         this, SLOT(dump_log_message(QString)), Qt::QueuedConnection);
    //  QObject::connect((PjCallback*)globalPjCallback, SIGNAL(new_im(QString,QString)),
    //          this, SLOT(new_incoming_im(QString,QString)), Qt::QueuedConnection);
-    connect((PjCallback*)globalPjCallback, SIGNAL(setCallState(QString)),
-            SLOT(setCallState(QString)), Qt::QueuedConnection);
+    connect((PjCallback*)globalPjCallback, SIGNAL(setCallState(const QString &, const QString &)),
+            SLOT(setCallState(const QString &, const QString &)), Qt::QueuedConnection);
     //QObject::connect((PjCallback*)globalPjCallback, SIGNAL(setCallButtonText(QString)),
             //Application::instance()->mainWindow(), SLOT(setCallButtonText(QString)), Qt::QueuedConnection);
     /*
@@ -229,6 +228,7 @@ bool VoipC::initialize()
     } else {
         status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &transport_cfg, &transport_id);
     }
+
     if (status != PJ_SUCCESS) {
         qDebug() << "Error creating transport" << status;
         pjsua_destroy();
@@ -301,15 +301,12 @@ bool VoipC::initialize()
         return false;
     }
 
-    m_registered = true;
-    //ui->registeredLabel->setText("OK!");
     return true;
 }
 
 bool VoipC::shutdown()
 {
     pj_status_t status;
-    m_registered = false;
     if (pool) {
         pj_pool_release(pool);
         pool = NULL;
@@ -384,20 +381,31 @@ bool VoipC::answer()
     activeCallsMutex.unlock();
 }
 
-bool VoipC::registered()
+int VoipC::regStatus()
 {
-    return m_registered;
+    pj_status_t status;
+    pjsua_acc_info acc_info;
+    status = pjsua_acc_get_info(acc_id, &acc_info);
+
+    return acc_info.status;
 }
 
-void VoipC::setCallState(const QString &state)
+void VoipC::setCallState(const QString &state, const QString &contact)
 {
     m_state = state;
+    m_status_contact = contact;
+
     emit stateChanged();
 }
 
 const QString &VoipC::state() const
 {
     return m_state;
+}
+
+const QString &VoipC::statusContact() const
+{
+    return m_status_contact;
 }
 
 void VoipC::setTxLevel(int slot, float level)

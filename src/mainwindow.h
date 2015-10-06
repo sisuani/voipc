@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QSound>
 
 #include "voipc.h"
 #include "ui_mainwindow.h"
@@ -23,10 +24,14 @@ private slots:
     void hangupClicked();
     void muteClicked();
     void voipCStateChanged();
+    void checkRegistration();
 
 private:
     void initialize();
     void setStatus(const QString &status);
+
+    QSound *toneSound;
+    QSound *ringSound;
 
     bool m_incommingCall;
     VoipC voipc;

@@ -7,6 +7,7 @@ ENDIF()
 set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Multimedia REQUIRED)
 find_package(Qt5Network REQUIRED)
 
 SET(VOIPCSources ${VOIPCSources}
@@ -50,6 +51,7 @@ SET_TARGET_PROPERTIES(voipc PROPERTIES AUTOMOC TRUE)
 
 TARGET_LINK_LIBRARIES(voipc Qt5::Widgets)
 TARGET_LINK_LIBRARIES(voipc Qt5::Network)
+TARGET_LINK_LIBRARIES(voipc Qt5::Multimedia)
 if(WIN32)
     target_link_libraries(voipc
         pjsua-i686-pc-mingw32

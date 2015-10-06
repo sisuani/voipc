@@ -18,13 +18,14 @@ public:
     VoipC(QObject *parent = 0);
     ~VoipC();
 
-    bool registered();
+    int regStatus();
     bool initialize();
     bool shutdown();
     bool call(const QString &uri);
     bool hangup();
     bool answer();
     const QString &state() const;
+    const QString &statusContact() const;
     void setTxLevel(int slot, float level);
     void setRxLevel(int slot, float level);
 
@@ -32,12 +33,12 @@ signals:
     void stateChanged();
 
 private slots:
-    void setCallState(const QString &state);
+    void setCallState(const QString &state, const QString &contact);
 
 private:
     PjCallback *pjCallback;
     QString m_state;
-    bool m_registered;
+    QString m_status_contact;
     char *caor, *creguri, *cdomain, *cusername, *cpassword, *cstun, *coutbound;
 };
 

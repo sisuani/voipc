@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 
 #include <QMessageBox>
+#include <QTimer>
 #include <QDebug>
 
 #include "commands.h"
@@ -9,8 +10,15 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , toneSound(0)
+    , ringSound(0)
 {
     ui->setupUi(this);
+
+    toneSound = new QSound("tone.wav");
+    ringSound = new QSound("ring.wav");
+    toneSound->setLoops(-1);
+    ringSound->setLoops(-1);
 
     connect(ui->d1Button, SIGNAL(clicked()), SLOT(dialButtonClicked()));
     connect(ui->d2Button, SIGNAL(clicked()), SLOT(dialButtonClicked()));
@@ -38,6 +46,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if (toneSound)
+        delete toneSound;
+
+    if (ringSound)
+        delete ringSound;
+
     delete ui;
 }
 
@@ -45,14 +59,14 @@ void MainWindow::initialize()
 {
     m_incommingCall = false;
 
-    if (voipc.registered())
-        voipc.shutdown();
     setStatus(trUtf8("Inicializando SIP..."));
     ui->statusLabel->setText("Inicializando SIP...");
-    if (!voipc.initialize())
+    if (!voipc.initialize()) {
         setStatus(trUtf8("Error inicializando"));
-    else
-        setStatus(trUtf8("Registrado"));
+     } else {
+        setStatus(trUtf8("Registrando..."));
+        QTimer::singleShot(10, this, SLOT(checkRegistration()));
+     }
 
 }
 
@@ -68,7 +82,7 @@ void MainWindow::dialButtonClicked()
 
 void MainWindow::callClicked()
 {
-    if (!voipc.registered()) {
+    if (voipc.regStatus() != 200) {
         QMessageBox::warning(this,
                 trUtf8("VoipC"),
                 trUtf8("No está registrado"));
@@ -78,15 +92,19 @@ void MainWindow::callClicked()
     if (voipc.state() == "INCOMING") {
         voipc.answer();
     } else if(voipc.state() == "DISCONNCTD") {
-        if (!voipc.call(ui->uriComboBox->currentText())) {
-            setStatus(trUtf8("Error realizando la llamada"));
+        const QString dest = ui->uriComboBox->currentText();
+        if (!voipc.call(dest)) {
+            setStatus(trUtf8("Error llamando a <%1>").arg(dest));
+        } else {
+            setStatus(trUtf8("Llamando a: <%1>").arg(dest));
+            toneSound->play();
         }
     }
 }
 
 void MainWindow::hangupClicked()
 {
-    if(!voipc.registered()) {
+    if(!voipc.regStatus() == 200) {
         QMessageBox::warning(this,
                 trUtf8("VoipC"),
                 trUtf8("No está registrado"));
@@ -108,21 +126,49 @@ void MainWindow::muteClicked()
 void MainWindow::voipCStateChanged()
 {
     const QString state = voipc.state();
-    qDebug() << "current state: " << state;
     if(state.compare("INCOMING") == 0) {
         m_incommingCall = true;
         ui->callButton->setText(trUtf8("Atender"));
+        setStatus(trUtf8("Llamada entrante: %1").arg(voipc.statusContact()));
+        ringSound->play();
     } else if (state.compare("CONNECTING") == 0) {
-        setStatus(trUtf8("Conectando..."));
+        setStatus(trUtf8("Estableciendo..."));
     } else if (state.compare("CONFIRMED") == 0) {
-        setStatus(trUtf8("Conectado"));
+        QString condest;
+        if (m_incommingCall) {
+            condest = voipc.statusContact();
+            ringSound->stop();
+        } else {
+            condest = ui->uriComboBox->currentText();
+            toneSound->stop();
+        }
+
+        setStatus(trUtf8("Conectado con: %1").arg(condest));
     } else if (state.compare("DISCONNCTD") == 0) {
-        if(m_incommingCall) {
+        if (m_incommingCall) {
             m_incommingCall = false;
             ui->callButton->setText(trUtf8("Llamar"));
         }
-        setStatus(trUtf8("En espera..."));
+
+        if (!toneSound->isFinished())
+            toneSound->stop();
+
+        if (!ringSound->isFinished())
+            ringSound->stop();
+
+        setStatus(trUtf8("Llamada finalizada"));
     }
+}
+
+void MainWindow::checkRegistration()
+{
+    const int reg_status = voipc.regStatus();
+    if (reg_status == 200)
+        setStatus(trUtf8("Registrado!"));
+    else if (reg_status > 400)
+        setStatus(trUtf8("Error registrando"));
+    else
+        QTimer::singleShot(400, this, SLOT(checkRegistration()));
 }
 
 void MainWindow::setStatus(const QString &status)
