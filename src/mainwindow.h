@@ -25,10 +25,12 @@ private slots:
     void muteClicked();
     void voipCStateChanged();
     void checkRegistration();
+    void holdClicked();
 
 private:
     void initialize();
     void setStatus(const QString &status);
+    void sendDtmf(char digit);
 
     QSound *toneSound;
     QSound *ringSound;

@@ -382,6 +382,38 @@ bool VoipC::answer()
     activeCallsMutex.unlock();
 }
 
+bool VoipC::hold(const bool hold)
+{
+    if (activeCalls.empty())
+        return false;
+
+    if (hold) {
+        pj_status_t status = pjsua_call_set_hold(activeCalls.at(0), 0);
+        if (status != PJ_SUCCESS) {
+            return false;
+        }
+    } else {
+        pj_status_t status = pjsua_call_reinvite(activeCalls.at(0), true, 0);
+        if (status != PJ_SUCCESS) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool VoipC::sendDtmf(char digit)
+{
+    if (activeCalls.empty())
+        return false;
+
+    pj_str_t s = pj_str(&digit);
+    pj_status_t status = pjsua_call_dial_dtmf(activeCalls.at(0), &s);
+    if (status != PJ_SUCCESS)
+        return false;
+
+    return true;
+}
+
 int VoipC::regStatus()
 {
     pj_status_t status;

@@ -24,10 +24,13 @@ public:
     bool call(const QString &uri);
     bool hangup();
     bool answer();
-    const QString &state() const;
-    const QString &statusContact() const;
+    bool hold(const bool hold);
+    bool sendDtmf(char digit);
     void setTxLevel(int slot, float level);
     void setRxLevel(int slot, float level);
+
+    const QString &state() const;
+    const QString &statusContact() const;
 
 signals:
     void stateChanged();

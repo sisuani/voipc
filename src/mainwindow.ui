@@ -502,7 +502,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="holdButton">
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -511,17 +511,8 @@
           <property name="text">
            <string>Hold</string>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_2">
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Transferir</string>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -595,8 +586,7 @@
   <tabstop>dStarButton</tabstop>
   <tabstop>d0Button</tabstop>
   <tabstop>dNumeralButton</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>pushButton_2</tabstop>
+  <tabstop>holdButton</tabstop>
   <tabstop>muteButton</tabstop>
  </tabstops>
  <resources/>

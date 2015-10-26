@@ -3,6 +3,7 @@
 
 #include <QMessageBox>
 #include <QTimer>
+#include <QLineEdit>
 #include <QDebug>
 
 #include "commands.h"
@@ -34,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->dNumeralButton, SIGNAL(clicked()), SLOT(dialButtonClicked()));
 
     connect(ui->muteButton, SIGNAL(clicked()), SLOT(muteClicked()));
+    connect(ui->holdButton, SIGNAL(clicked()), SLOT(holdClicked()));
 
     connect(ui->callButton, SIGNAL(clicked()), SLOT(callClicked()));
     connect(ui->hangupButton, SIGNAL(clicked()), SLOT(hangupClicked()));
@@ -77,7 +79,17 @@ void MainWindow::dialButtonClicked()
         return;
 
     const QString dtxt = senderButton->text();
-    ui->uriComboBox->setCurrentText(ui->uriComboBox->currentText() + dtxt);
+    const int cp = ui->uriComboBox->lineEdit()->cursorPosition();
+    QString ct = ui->uriComboBox->currentText();
+    ct.insert(cp, dtxt);
+    ui->uriComboBox->setCurrentText(ct);
+    ui->uriComboBox->lineEdit()->setCursorPosition(cp+1);
+
+    const QString state = voipc.state();
+
+    if (state.compare("CONNECTING") == 0 || state.compare("CONFIRMED") == 0) {
+        sendDtmf(dtxt.at(0).toLatin1());
+    }
 }
 
 void MainWindow::callClicked()
@@ -92,7 +104,10 @@ void MainWindow::callClicked()
     if (voipc.state() == "INCOMING") {
         voipc.answer();
     } else if(voipc.state() == "DISCONNCTD") {
-        const QString dest = ui->uriComboBox->currentText();
+        QString dest = ui->uriComboBox->currentText();
+        if (!dest.startsWith("sip:"))
+            dest.insert(0, "sip:");
+
         if (!voipc.call(dest)) {
             setStatus(trUtf8("Error llamando a <%1>").arg(dest));
         } else {
@@ -121,6 +136,17 @@ void MainWindow::muteClicked()
         voipc.setRxLevel(0, 0);
     else
         voipc.setRxLevel(0, 2);
+}
+
+void MainWindow::holdClicked()
+{
+    if (ui->holdButton->isChecked()) {
+        const bool r = voipc.hold(true);
+        ui->holdButton->setChecked(r);
+    } else {
+        const bool r = voipc.hold(false);
+        ui->holdButton->setChecked(!r);
+    }
 }
 
 void MainWindow::voipCStateChanged()
@@ -176,6 +202,11 @@ void MainWindow::checkRegistration()
 void MainWindow::setStatus(const QString &status)
 {
     ui->statusLabel->setText(status);
+}
+
+void MainWindow::sendDtmf(char digit)
+{
+    voipc.sendDtmf(digit);
 }
 
 void MainWindow::execCommand(const int cmd, const QString &arg)
