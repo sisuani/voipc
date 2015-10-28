@@ -15,6 +15,8 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    QString sipStatus();
+
 public slots:
     void execCommand(const int cmd, const QString &arg);
 
@@ -29,6 +31,9 @@ private slots:
 
 private:
     void initialize();
+    void incommingCall();
+    void confirmCall();
+    void disconnctdCall();
     void setStatus(const QString &status);
     void sendDtmf(char digit);
 

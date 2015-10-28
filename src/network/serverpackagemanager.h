@@ -22,7 +22,7 @@ public:
     ~ServerPackageManager();
 
     void processPackage(const QByteArray &json);
-    void createPackage(const int radioNo, const QString &type, const QString &value);
+    void createPackage(const QString &cmd, const QString &value);
 
     inline bool hasPackage() { return m_packageList.count() > 0; }
     inline bool isEmpty() { return m_packageList.isEmpty(); }

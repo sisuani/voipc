@@ -21,7 +21,7 @@
 Application::Application(int &argc, char **argv)
   : QApplication(argc, argv)
 {
-    server = 0;
+    mServer = 0;
 
     setOrganizationName(QLatin1String(VOIPC_ORGANIZATION_NAME));
     setOrganizationDomain(QLatin1String(VOIPC_ORGANIZATION_DOMAIN));
@@ -35,8 +35,8 @@ Application::Application(int &argc, char **argv)
 
 Application::~Application()
 {
-    if (server)
-        delete server;
+    if (mServer)
+        delete mServer;
 }
 
 Application *Application::instance()
@@ -52,7 +52,7 @@ void Application::init()
 
     // server
     if (Settings::instance()->serverEnable()) {
-        server = new Server(9090, this);
+        mServer = new Server(9090, this);
     }
 
     // gui

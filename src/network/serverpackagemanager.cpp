@@ -91,23 +91,25 @@ QString ServerPackageManager::processJson(const QVariantMap &data)
     } else if (action.compare(CMD_UNMUTE) == 0) {
         Application::instance()->mainWindow()->execCommand(Unmute, "");
         return CMD_OK;
+    } else if (action.compare(CMD_GET_STATUS) == 0) {
+        createPackage("get_state", Application::instance()->mainWindow()->sipStatus());
+        return CMD_OK;
     }
 
     return CMD_ERROR;
 }
 
-void ServerPackageManager::createPackage(const int radioNo, const QString &type, const QString &value)
+void ServerPackageManager::createPackage(const QString &cmd, const QString &value)
 {
-    QString pkg;
-    if(type.compare("UnitID") == 0) {
-        pkg = "{ \"radios\": {";
-        pkg += QString("\"radioNo\" : \"%1\", ").arg(radioNo);
-        pkg += QString("\"UnitID\" : \"%1\"").arg(value);
-        pkg += "}";
-        pkg += "}";
-    } else {
-        return;
+    QString pkg = "{ \"action\" : \"" + cmd + "\"";
+    if (cmd.compare("incomming_call") == 0) {
+        pkg += ", \"src\" : \"" + value + "\"";
+    } else if (cmd.compare("mute_state") == 0) {
+        pkg += ", \"state\" : \"" + value + "\"";
+    } else if (cmd.compare("get_state") == 0) {
+        pkg += ", \"status\" : \"" + value + "\"";
     }
+    pkg += " }";
 
     send(pkg);
 }

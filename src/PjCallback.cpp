@@ -148,8 +148,6 @@ void PjCallback::on_call_state(pjsua_call_id call_id, pjsip_event *e)
 {
     PJ_UNUSED_ARG(e);
 
-    PJ_LOG(3,(THIS_FILE, "trying to lock ...."));
-    PJ_LOG(3,(THIS_FILE, "trying to lock .... locked"));
     if (activeCalls.empty()) {
         PJ_LOG(3,(THIS_FILE, "Call %d not found as callList is empty; new incoming call? ... ignoring", call_id));
         return;

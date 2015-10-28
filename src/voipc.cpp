@@ -387,17 +387,15 @@ bool VoipC::hold(const bool hold)
     if (activeCalls.empty())
         return false;
 
-    if (hold) {
-        pj_status_t status = pjsua_call_set_hold(activeCalls.at(0), 0);
-        if (status != PJ_SUCCESS) {
-            return false;
-        }
-    } else {
-        pj_status_t status = pjsua_call_reinvite(activeCalls.at(0), true, 0);
-        if (status != PJ_SUCCESS) {
-            return false;
-        }
-    }
+    pj_status_t status;
+    if (hold)
+        status = pjsua_call_set_hold(activeCalls.at(0), 0);
+    else
+        status = pjsua_call_reinvite(activeCalls.at(0), true, 0);
+
+    if (status != PJ_SUCCESS)
+        return false;
+
     return true;
 }
 

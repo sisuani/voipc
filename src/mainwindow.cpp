@@ -6,6 +6,8 @@
 #include <QLineEdit>
 #include <QDebug>
 
+#include "application.h"
+#include "settings.h"
 #include "commands.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -108,6 +110,9 @@ void MainWindow::callClicked()
         if (!dest.startsWith("sip:"))
             dest.insert(0, "sip:");
 
+        if (!dest.contains("@"))
+            dest.append("@" + Settings::instance()->sipDomain());
+
         if (!voipc.call(dest)) {
             setStatus(trUtf8("Error llamando a <%1>").arg(dest));
         } else {
@@ -132,10 +137,11 @@ void MainWindow::hangupClicked()
 
 void MainWindow::muteClicked()
 {
-    if (ui->muteButton->isChecked())
-        voipc.setRxLevel(0, 0);
-    else
-        voipc.setRxLevel(0, 2);
+    const bool c = ui->muteButton->isChecked();
+    voipc.setRxLevel(0, c ? 0 : 2);
+
+    if (Settings::instance()->serverEnable())
+        Application::instance()->server()->sendToAll("mute_state", c ? "mute" : "unmute");
 }
 
 void MainWindow::holdClicked()
@@ -153,39 +159,63 @@ void MainWindow::voipCStateChanged()
 {
     const QString state = voipc.state();
     if(state.compare("INCOMING") == 0) {
-        m_incommingCall = true;
-        ui->callButton->setText(trUtf8("Atender"));
-        setStatus(trUtf8("Llamada entrante: %1").arg(voipc.statusContact()));
-        ringSound->play();
+        incommingCall();
     } else if (state.compare("CONNECTING") == 0) {
         setStatus(trUtf8("Estableciendo..."));
     } else if (state.compare("CONFIRMED") == 0) {
-        QString condest;
-        if (m_incommingCall) {
-            condest = voipc.statusContact();
-            if (ringSound && !ringSound->isFinished())
-                ringSound->stop();
-        } else {
-            condest = ui->uriComboBox->currentText();
-            if (toneSound && !toneSound->isFinished())
-                toneSound->stop();
-        }
-
-        setStatus(trUtf8("Conectado con: %1").arg(condest));
+        confirmCall();
     } else if (state.compare("DISCONNCTD") == 0) {
-        if (m_incommingCall) {
-            m_incommingCall = false;
-            ui->callButton->setText(trUtf8("Llamar"));
-        }
-
-        if (!toneSound->isFinished())
-            toneSound->stop();
-
-        if (!ringSound->isFinished())
-            ringSound->stop();
-
-        setStatus(trUtf8("Llamada finalizada"));
+        disconnctdCall();
     }
+}
+
+void MainWindow::incommingCall()
+{
+    m_incommingCall = true;
+    ui->callButton->setText(trUtf8("Atender"));
+    ringSound->play();
+    setStatus(trUtf8("Llamada entrante: %1").arg(voipc.statusContact()));
+
+    if (Settings::instance()->serverEnable())
+        Application::instance()->server()->sendToAll("incomming_call", voipc.statusContact());
+}
+
+void MainWindow::confirmCall()
+{
+    QString condest;
+    if (m_incommingCall) {
+        condest = voipc.statusContact();
+        if (ringSound && !ringSound->isFinished())
+            ringSound->stop();
+    } else {
+        condest = ui->uriComboBox->currentText();
+        if (toneSound && !toneSound->isFinished())
+            toneSound->stop();
+    }
+
+    setStatus(trUtf8("Conectado con: %1").arg(condest));
+
+    if (Settings::instance()->serverEnable())
+        Application::instance()->server()->sendToAll("pickup", "");
+}
+
+void MainWindow::disconnctdCall()
+{
+    if (m_incommingCall) {
+        m_incommingCall = false;
+        ui->callButton->setText(trUtf8("Llamar"));
+    }
+
+    if (!toneSound->isFinished())
+        toneSound->stop();
+
+    if (!ringSound->isFinished())
+        ringSound->stop();
+
+    setStatus(trUtf8("Llamada finalizada"));
+
+    if (Settings::instance()->serverEnable())
+        Application::instance()->server()->sendToAll("hangup", "");
 }
 
 void MainWindow::checkRegistration()
@@ -237,5 +267,17 @@ void MainWindow::execCommand(const int cmd, const QString &arg)
         ui->muteButton->setChecked(false);
         muteClicked();
     }
+}
 
+QString MainWindow::sipStatus()
+{
+    const QString state = voipc.state();
+    if (state.compare("INCOMING") == 0)
+        return "incomming_call";
+    else if (state.compare("DISCONNCTD") == 0)
+        return  "idle";
+    else if (state.compare("CONFIRMED") == 0)
+        return  "oncall";
+
+    return "unknown";
 }

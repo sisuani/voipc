@@ -17,6 +17,10 @@ ClientThread::ClientThread(int socket)
     qDebug() << QString("New client sk: %1 ").arg(socket);
 }
 
+ClientThread::~ClientThread()
+{
+}
+
 void ClientThread::process()
 {
     m_tcpSocket = new QTcpSocket();
@@ -26,6 +30,11 @@ void ClientThread::process()
     connect(&m_serverPackageManager, SIGNAL(readySend()), SLOT(readySend()));
     connect(m_tcpSocket, SIGNAL(readyRead()), SLOT(readyRead()));
     connect(m_tcpSocket, SIGNAL(disconnected()), SLOT(disconnected()));
+}
+
+void ClientThread::createPackage(const QString &cmd, const QString &arg)
+{
+    m_serverPackageManager.createPackage(cmd, arg);
 }
 
 void ClientThread::readyRead()

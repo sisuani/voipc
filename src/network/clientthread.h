@@ -22,6 +22,9 @@ Q_OBJECT
 
 public:
     ClientThread(int socket);
+    ~ClientThread();
+
+    void createPackage(const QString &cmd, const QString &arg);
 
 signals:
     void finished();

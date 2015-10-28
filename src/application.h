@@ -26,6 +26,7 @@ public:
     static Application *instance();
 
     MainWindow *mainWindow() const { return mMainWindow; }
+    Server *server() const { return mServer; }
 
 private slots:
     void init();
@@ -35,7 +36,7 @@ private:
     void initGui();
 
     Settings *settings;
-    Server *server;
+    Server *mServer;
     MainWindow *mMainWindow;
 };
 
