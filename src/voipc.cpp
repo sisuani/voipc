@@ -401,14 +401,23 @@ bool VoipC::hold(const bool hold)
 
 bool VoipC::sendDtmf(char digit)
 {
-    if (activeCalls.empty())
+    activeCallsMutex.lock();
+    if (activeCalls.empty()) {
+        activeCallsMutex.unlock();
         return false;
+    }
 
     pj_str_t s = pj_str(&digit);
     pj_status_t status = pjsua_call_dial_dtmf(activeCalls.at(0), &s);
-    if (status != PJ_SUCCESS)
+    if (status != PJ_SUCCESS) {
+        qDebug() << "err se DTMF: " << digit;
+        activeCallsMutex.unlock();
         return false;
+    }
 
+    qDebug() << "se DTMF: " << digit;
+
+    activeCallsMutex.unlock();
     return true;
 }
 
