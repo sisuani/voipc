@@ -34,7 +34,7 @@ private:
     void incommingCall();
     void confirmCall();
     void disconnctdCall();
-    void setStatus(const QString &status);
+    void setStatus(const QString &status, const QString &styleSheet);
     void sendDtmf(char digit);
 
     QSound *toneSound;

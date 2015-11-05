@@ -5,10 +5,16 @@
 #include <QTimer>
 #include <QLineEdit>
 #include <QDebug>
+#include <QDir>
 
 #include "application.h"
 #include "settings.h"
 #include "commands.h"
+
+#define SS_ERROR "color: #E74C3C;"
+#define SS_WAIT  "color: #F39C12;"
+#define SS_OK    "color: #2ECC71;"
+#define SS_NULL  ""
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,8 +24,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    toneSound = new QSound("tone.wav");
-    ringSound = new QSound("ring.wav");
+    setWindowFlags(windowFlags() ^ Qt::WindowMaximizeButtonHint);
+
+    const QString qdircp = QDir::currentPath() + QDir::separator();
+    toneSound = new QSound(qdircp + "tone.wav");
+    ringSound = new QSound(qdircp + "ring.wav");
     toneSound->setLoops(-1);
     ringSound->setLoops(-1);
 
@@ -39,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->muteButton, SIGNAL(clicked()), SLOT(muteClicked()));
     connect(ui->holdButton, SIGNAL(clicked()), SLOT(holdClicked()));
 
+    connect(ui->uriComboBox->lineEdit(), SIGNAL(returnPressed()), SLOT(callClicked()));
     connect(ui->callButton, SIGNAL(clicked()), SLOT(callClicked()));
     connect(ui->hangupButton, SIGNAL(clicked()), SLOT(hangupClicked()));
     connect(&voipc, SIGNAL(stateChanged()), SLOT(voipCStateChanged()));
@@ -50,6 +60,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    voipc.shutdown();
+
     if (toneSound)
         delete toneSound;
 
@@ -63,12 +75,11 @@ void MainWindow::initialize()
 {
     m_incommingCall = false;
 
-    setStatus(trUtf8("Inicializando SIP..."));
-    ui->statusLabel->setText("Inicializando SIP...");
+    setStatus(trUtf8("Inicializando SIP..."), SS_WAIT);
     if (!voipc.initialize()) {
-        setStatus(trUtf8("Error inicializando"));
+        setStatus(trUtf8("Error inicializando"), SS_ERROR);
      } else {
-        setStatus(trUtf8("Registrando..."));
+        setStatus(trUtf8("Registrando..."), SS_WAIT);
         QTimer::singleShot(10, this, SLOT(checkRegistration()));
      }
 
@@ -114,9 +125,9 @@ void MainWindow::callClicked()
             dest.append("@" + Settings::instance()->sipDomain());
 
         if (!voipc.call(dest)) {
-            setStatus(trUtf8("Error llamando a <%1>").arg(dest));
+            setStatus(trUtf8("Error llamando a <%1>").arg(dest), SS_ERROR);
         } else {
-            setStatus(trUtf8("Llamando a: <%1>").arg(dest));
+            setStatus(trUtf8("Llamando a: <%1>").arg(dest), SS_OK);
             toneSound->play();
         }
     }
@@ -161,7 +172,7 @@ void MainWindow::voipCStateChanged()
     if(state.compare("INCOMING") == 0) {
         incommingCall();
     } else if (state.compare("CONNECTING") == 0) {
-        setStatus(trUtf8("Estableciendo..."));
+        setStatus(trUtf8("Estableciendo..."), SS_WAIT);
     } else if (state.compare("CONFIRMED") == 0) {
         confirmCall();
     } else if (state.compare("DISCONNCTD") == 0) {
@@ -174,7 +185,7 @@ void MainWindow::incommingCall()
     m_incommingCall = true;
     ui->callButton->setText(trUtf8("Atender"));
     ringSound->play();
-    setStatus(trUtf8("Llamada entrante: %1").arg(voipc.statusContact()));
+    setStatus(trUtf8("Llamada entrante: %1").arg(voipc.statusContact()), SS_NULL);
 
     if (Settings::instance()->serverEnable())
         Application::instance()->server()->sendToAll("incomming_call", voipc.statusContact());
@@ -193,7 +204,7 @@ void MainWindow::confirmCall()
             toneSound->stop();
     }
 
-    setStatus(trUtf8("Conectado con: %1").arg(condest));
+    setStatus(trUtf8("Conectado con: %1").arg(condest), SS_NULL);
 
     if (Settings::instance()->serverEnable())
         Application::instance()->server()->sendToAll("pickup", "");
@@ -212,7 +223,7 @@ void MainWindow::disconnctdCall()
     if (!ringSound->isFinished())
         ringSound->stop();
 
-    setStatus(trUtf8("Llamada finalizada"));
+    setStatus(trUtf8("Llamada finalizada"), SS_NULL);
 
     if (Settings::instance()->serverEnable())
         Application::instance()->server()->sendToAll("hangup", "");
@@ -222,16 +233,17 @@ void MainWindow::checkRegistration()
 {
     const int reg_status = voipc.regStatus();
     if (reg_status == 200)
-        setStatus(trUtf8("Registrado!"));
+        setStatus(trUtf8("Registrado"), SS_OK);
     else if (reg_status > 400)
-        setStatus(trUtf8("Error registrando"));
+        setStatus(trUtf8("Error registrando"), SS_ERROR);
     else
         QTimer::singleShot(400, this, SLOT(checkRegistration()));
 }
 
-void MainWindow::setStatus(const QString &status)
+void MainWindow::setStatus(const QString &status, const QString &styleSheet)
 {
     ui->statusLabel->setText(status);
+    ui->statusLabel->setStyleSheet(styleSheet);
 }
 
 void MainWindow::sendDtmf(char digit)

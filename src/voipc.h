@@ -20,6 +20,7 @@ public:
 
     int regStatus();
     bool initialize();
+    bool unregister();
     bool shutdown();
     bool call(const QString &uri);
     bool hangup();

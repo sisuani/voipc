@@ -304,8 +304,17 @@ bool VoipC::initialize()
     return true;
 }
 
+bool VoipC::unregister()
+{
+    pjsua_acc_set_registration(acc_id, PJ_FALSE);
+    return true;
+}
+
 bool VoipC::shutdown()
 {
+    if (regStatus() == 200)
+        unregister();
+
     pj_status_t status;
     if (pool) {
         pj_pool_release(pool);
