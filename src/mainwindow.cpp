@@ -6,6 +6,7 @@
 #include <QLineEdit>
 #include <QDebug>
 #include <QDir>
+#include <QShortcut>
 
 #include "application.h"
 #include "settings.h"
@@ -32,6 +33,9 @@ MainWindow::MainWindow(QWidget *parent)
     toneSound->setLoops(-1);
     ringSound->setLoops(-1);
 
+    QShortcut *callShortcut = new QShortcut(QKeySequence("Ctrl+L"), this);
+    QShortcut *hangupShortcut = new QShortcut(QKeySequence("Ctrl+H"), this);
+
     connect(ui->d1Button, SIGNAL(clicked()), SLOT(dialButtonClicked()));
     connect(ui->d2Button, SIGNAL(clicked()), SLOT(dialButtonClicked()));
     connect(ui->d3Button, SIGNAL(clicked()), SLOT(dialButtonClicked()));
@@ -49,8 +53,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->holdButton, SIGNAL(clicked()), SLOT(holdClicked()));
 
     connect(ui->uriComboBox->lineEdit(), SIGNAL(returnPressed()), SLOT(callClicked()));
+
     connect(ui->callButton, SIGNAL(clicked()), SLOT(callClicked()));
+    connect(callShortcut, SIGNAL(activated()), SLOT(callClicked()));
+
     connect(ui->hangupButton, SIGNAL(clicked()), SLOT(hangupClicked()));
+    connect(hangupShortcut, SIGNAL(activated()), SLOT(hangupClicked()));
+
     connect(&voipc, SIGNAL(stateChanged()), SLOT(voipCStateChanged()));
 
     initialize();
@@ -60,8 +69,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    voipc.shutdown();
-
     if (toneSound)
         delete toneSound;
 
@@ -69,6 +76,12 @@ MainWindow::~MainWindow()
         delete ringSound;
 
     delete ui;
+}
+
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    voipc.shutdown();
 }
 
 void MainWindow::initialize()

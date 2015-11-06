@@ -95,9 +95,6 @@
         <property name="text">
          <string>&amp;Llamar</string>
         </property>
-        <property name="shortcut">
-         <string>Ctrl+L</string>
-        </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextUnderIcon</enum>
         </property>
@@ -126,9 +123,6 @@
         </property>
         <property name="text">
          <string>&amp;Cortar</string>
-        </property>
-        <property name="shortcut">
-         <string>Ctrl+C</string>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextUnderIcon</enum>

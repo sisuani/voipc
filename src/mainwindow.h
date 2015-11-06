@@ -29,6 +29,9 @@ private slots:
     void checkRegistration();
     void holdClicked();
 
+protected:
+    void closeEvent(QCloseEvent* event);
+
 private:
     void initialize();
     void incommingCall();
