@@ -93,7 +93,7 @@
          </size>
         </property>
         <property name="text">
-         <string>&amp;Llamar</string>
+         <string>Llamar</string>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextUnderIcon</enum>
@@ -122,7 +122,7 @@
          </size>
         </property>
         <property name="text">
-         <string>&amp;Cortar</string>
+         <string>Cortar</string>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextUnderIcon</enum>

@@ -200,8 +200,13 @@ void MainWindow::incommingCall()
     ringSound->play();
     setStatus(trUtf8("Llamada entrante: %1").arg(voipc.statusContact()), SS_NULL);
 
-    if (Settings::instance()->serverEnable())
-        Application::instance()->server()->sendToAll("incomming_call", voipc.statusContact());
+    if (Settings::instance()->serverEnable()) {
+        QString contact = voipc.statusContact();
+        contact.remove("<sip:");
+        contact.remove(contact.indexOf("@"), contact.size());
+
+        Application::instance()->server()->sendToAll("incomming_call", contact);
+    }
 }
 
 void MainWindow::confirmCall()
