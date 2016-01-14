@@ -244,7 +244,7 @@ void MainWindow::disconnctdCall()
     setStatus(trUtf8("Llamada finalizada"), SS_NULL);
 
     if (Settings::instance()->serverEnable())
-        Application::instance()->server()->sendToAll("hangup", "");
+        Application::instance()->server()->sendToAll("hangup", voipc.reason());
 }
 
 void MainWindow::checkRegistration()

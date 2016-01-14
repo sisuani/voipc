@@ -104,7 +104,7 @@ signals:
     /* this signal forwards the call state synchronous to the GUI thread */
     void call_state_sync(int call_id);
     /* this signal forwards the call state a-synchronous BLOCKING to the GUI thread */
-    void setCallState(const QString &, const QString &);
+    void setCallState(const QString &, const QString &, const QString &);
     /* this signal forwards the text of the call button a-synchronous BLOCKING to the GUI thread */
     //	/* this signal forwards incoming call event a-synchronous to the GUI thread */
     //	void incoming_call();

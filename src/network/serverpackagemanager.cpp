@@ -104,6 +104,8 @@ void ServerPackageManager::createPackage(const QString &cmd, const QString &valu
     QString pkg = "{ \"action\" : \"" + cmd + "\"";
     if (cmd.compare("incomming_call") == 0) {
         pkg += ", \"src\" : \"" + value + "\"";
+    } else if (cmd.compare("hangup") == 0) {
+        pkg += ", \"reason\" : \"" + value + "\"";
     } else if (cmd.compare("mute_state") == 0) {
         pkg += ", \"state\" : \"" + value + "\"";
     } else if (cmd.compare("get_state") == 0) {

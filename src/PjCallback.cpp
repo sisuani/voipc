@@ -177,9 +177,9 @@ void PjCallback::on_call_state(pjsua_call_id call_id, pjsip_event *e)
 
     const QString state_text = QString::fromLatin1(ci.state_text.ptr,(int)ci.state_text.slen);
     const QString contact = ci.remote_contact.ptr;
+    const QString reason = ci.last_status_text.ptr;
 
-
-    emit setCallState(state_text, contact);
+    emit setCallState(state_text, contact, reason);
 }
 
 void PjCallback::on_call_state_wrapper(pjsua_call_id call_id, pjsip_event *e)
@@ -217,8 +217,9 @@ void PjCallback::on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pj
 
     const QString state_text = QString::fromLatin1(ci.state_text.ptr,(int)ci.state_text.slen);
     const QString contact = ci.remote_contact.ptr;
+    const QString reason = ci.last_status_text.ptr;
 
-    emit setCallState(state_text, contact);
+    emit setCallState(state_text, contact, reason);
 
     activeCalls << call_id;
     activeCallsMutex.unlock();

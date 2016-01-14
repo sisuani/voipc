@@ -66,6 +66,7 @@ static pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata)
         }
     }
 
+
     /* Add User-Agent header */
     {
         pj_str_t user_agent;
@@ -115,8 +116,8 @@ VoipC::VoipC(QObject *parent)
    //         this, SLOT(dump_log_message(QString)), Qt::QueuedConnection);
    //  QObject::connect((PjCallback*)globalPjCallback, SIGNAL(new_im(QString,QString)),
    //          this, SLOT(new_incoming_im(QString,QString)), Qt::QueuedConnection);
-    connect((PjCallback*)globalPjCallback, SIGNAL(setCallState(const QString &, const QString &)),
-            SLOT(setCallState(const QString &, const QString &)), Qt::QueuedConnection);
+    connect((PjCallback*)globalPjCallback, SIGNAL(setCallState(const QString &, const QString &, const QString &)),
+            SLOT(setCallState(const QString &, const QString &, const QString &)), Qt::QueuedConnection);
     //QObject::connect((PjCallback*)globalPjCallback, SIGNAL(setCallButtonText(QString)),
             //Application::instance()->mainWindow(), SLOT(setCallButtonText(QString)), Qt::QueuedConnection);
     /*
@@ -419,12 +420,9 @@ bool VoipC::sendDtmf(char digit)
     pj_str_t s = pj_str(&digit);
     pj_status_t status = pjsua_call_dial_dtmf(activeCalls.at(0), &s);
     if (status != PJ_SUCCESS) {
-        qDebug() << "err se DTMF: " << digit;
         activeCallsMutex.unlock();
         return false;
     }
-
-    qDebug() << "se DTMF: " << digit;
 
     activeCallsMutex.unlock();
     return true;
@@ -439,10 +437,11 @@ int VoipC::regStatus()
     return acc_info.status;
 }
 
-void VoipC::setCallState(const QString &state, const QString &contact)
+void VoipC::setCallState(const QString &state, const QString &contact, const QString &reason)
 {
     m_state = state;
     m_status_contact = contact;
+    m_reason = reason;
 
     emit stateChanged();
 }
@@ -455,6 +454,11 @@ const QString &VoipC::state() const
 const QString &VoipC::statusContact() const
 {
     return m_status_contact;
+}
+
+const QString &VoipC::reason() const
+{
+    return m_reason;
 }
 
 void VoipC::setTxLevel(int slot, float level)

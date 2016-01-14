@@ -32,17 +32,19 @@ public:
 
     const QString &state() const;
     const QString &statusContact() const;
+    const QString &reason() const;
 
 signals:
     void stateChanged();
 
 private slots:
-    void setCallState(const QString &state, const QString &contact);
+    void setCallState(const QString &state, const QString &contact, const QString &reason);
 
 private:
     PjCallback *pjCallback;
     QString m_state;
     QString m_status_contact;
+    QString m_reason;
     char *caor, *creguri, *cdomain, *cusername, *cpassword, *cstun, *coutbound;
 };
 
